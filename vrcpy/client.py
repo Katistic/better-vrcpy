@@ -1,5 +1,6 @@
 from vrcpy.request import Request
 from vrcpy.objects import *
+from vrcpy.errors import ClientErrors
 import asyncio
 import base64
 import json
@@ -104,6 +105,11 @@ class Client:
         self.request.session.cookie_jar.update_cookies(
             [["auth", cookie.split(';')[0].split("=")[1]]]
         )
+
+        if "requiresTwoFactorAuth" in resp["data"]:
+            raise ClientErrors.MfaError("Account login requires 2fa")
+
+        self.me = CurrentUser(self, resp["data"], self.loop)
 
     async def logout(self):
         '''
