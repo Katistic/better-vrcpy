@@ -67,7 +67,7 @@ class Client:
         self.me = me
         return me
 
-    async def login(self, username=None, password=None, b64=None):
+    async def login(self, username=None, password=None, b64=None, create_session=True):
         '''
         Used to login as a VRC user
 
@@ -82,6 +82,10 @@ class Client:
             b64 login
                 b64, string
                 Base64 encoded username:password
+
+        Optional:
+            create_session, bool
+            Create a new session or not, defaults to True
         '''
 
         if b64 is None:
@@ -101,13 +105,14 @@ class Client:
             if "auth=authcookie" in cookie:
                 break
 
-        self.request.new_session(b64)
-        self.request.session.cookie_jar.update_cookies(
-            [["auth", cookie.split(';')[0].split("=")[1]]]
-        )
+        if create_session:
+            self.request.new_session(b64)
+            self.request.session.cookie_jar.update_cookies(
+                [["auth", cookie.split(';')[0].split("=")[1]]]
+            )
 
         if "requiresTwoFactorAuth" in resp["data"]:
-            raise ClientErrors.MfaError("Account login requires 2fa")
+            raise ClientErrors.MfaRequired("Account login requires 2fa")
 
         self.me = CurrentUser(self, resp["data"], self.loop)
 
@@ -134,9 +139,9 @@ class Client:
 
         try:
             await self.login(username, password, b64)
-        except ClientErrors.MfaError:
+        except ClientErrors.MfaRequired:
             await self.verify2fa(mfa)
-            self.me = await self.login(username, password, b64)
+            self.me = await self.login(username, password, b64, False)
 
     async def verify2fa(self, code):
         '''
@@ -146,7 +151,10 @@ class Client:
             2FactorAuth code (totp or otp)
         '''
 
-        await self.request.call("/auth/twofactorauth/{}/verify".format(
+        if type(code) is not str:
+            raise ClientErrors.MfaInvalid("{} is not a valid 2fa code".format(code))
+
+        resp = await self.request.call("/auth/twofactorauth/{}/verify".format(
                 "totp" if len(code) == 6 else "otp"
             ), "POST", jdict={"code": code})
 
@@ -166,19 +174,19 @@ class Client:
 
         await asyncio.sleep(0)
 
-    def run(self, username=None, password=None, b64=None):
+    def run(self, username=None, password=None, b64=None, mfa=None):
         '''
         Automates login+start
         This function is blocking
         '''
 
         try:
-            asyncio.get_event_loop().run_until_complete(self._run(username, password, b64))
+            self.loop.run_until_complete(self._run(username, password, b64, mfa))
         except KeyboardInterrupt:
-            asyncio.get_event_loop().run_until_complete(client.logout())
+            self.loop.run_until_complete(client.logout())
 
-    async def _run(self, username=None, password=None, b64=None):
-        await self.login(username, password, b64)
+    async def _run(self, username=None, password=None, b64=None, mfa=None):
+        await self.login2fa(username, password, b64, mfa)
         await self.start()
 
     # Websocket Stuff

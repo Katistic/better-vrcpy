@@ -77,6 +77,7 @@ class Request:
                 params[param] = str(params[param]).lower()
 
         params["apiKey"] = self.apiKey
+        path += "?apiKey=" + self.apiKey
         if no_auth:
             session = aiohttp.ClientSession(headers={"user-agent": self.user_agent})
             resp = await session.request(method, self.base + path, params=params,
@@ -113,7 +114,8 @@ class Request:
 
     @staticmethod
     def raise_for_status(resp):
-        print(resp)
+        if type(resp["data"]) == bytes:
+            resp["data"] = json.loads(resp["data"].decode())
 
         def handle_400():
             pass
@@ -133,3 +135,6 @@ class Request:
             404: lambda: handle_404(),
             429: lambda: handle_429()
         }
+
+        switch[resp["response"].status]()
+        print(resp)
