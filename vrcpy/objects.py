@@ -33,7 +33,7 @@ class BaseObject:
                 key,
                 self._get_proper_obj(
                     obj[self.required[key]["dict_key"]],
-                    obj[self.required[key]["type"]]
+                    self.required[key]["type"]
                 )
             )
 
@@ -44,7 +44,7 @@ class BaseObject:
                     key,
                     self._get_proper_obj(
                         obj[self.optional[key]["dict_key"]],
-                        obj[self.optional[key]["type"]]
+                        self.optional[key]["type"]
                     )
                 )
             else:
