@@ -21,7 +21,8 @@ class BaseObject:
                     self.loop
                 )
             else:
-                return t(obj)
+                if t is not dict:
+                    return t(obj)
 
 
     def _assign(self, obj):
@@ -215,7 +216,7 @@ class CurrentUser(User):
             },
             "offline_friends": {
                 "dict_key": "offlineFriends",
-                "type": str
+                "type": list
             },
             "friend_group_names": {
                 "dict_key": "friendGroupNames",

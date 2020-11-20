@@ -40,14 +40,14 @@ class Request:
 
         resp = None
         for attempt in range(0, retries + 1):
-            #try:
-            resp = await self._call(path, method, headers, params, jdict, no_auth, verify)
-            #    break
-            #except Exception as e:
-            #    if attempt == retries:
-            #        raise RequestErrors.RequestError(
-            #            "{} ({} retries)".format(e, retries)
-            #        )
+            try:
+                resp = await self._call(path, method, headers, params, jdict, no_auth, verify)
+                break
+            except Exception as e:
+                if attempt == retries:
+                    raise RequestErrors.RequestError(
+                        "{} ({} retries)".format(e, retries)
+                    )
 
         return resp
 
@@ -81,14 +81,14 @@ class Request:
         if no_auth:
             session = aiohttp.ClientSession(headers={"user-agent": self.user_agent})
             resp = await session.request(method, self.base + path, params=params,
-                headers=headers, json=jdict, verify_ssl=self.verify)
+                headers=headers, json=jdict, ssl=self.verify)
         else:
             if self.session is None:
                 raise RequestErrors.NoSession("No session, not logged in")
 
             session = None
             resp = await self.session.request(method, self.base + path, params=params,
-                headers=headers, json=jdict, verify_ssl=self.verify)
+                headers=headers, json=jdict, ssl=self.verify)
 
         if resp.status != 200:
             content = await resp.content.read()

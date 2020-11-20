@@ -6,8 +6,8 @@ import base64
 import json
 
 class Client:
-    def __init__(self, loop=None):
-        self.request = Request()
+    def __init__(self, loop=None, verify=True):
+        self.request = Request(verify=verify)
 
         self.me = None
         self.friends = []
@@ -23,6 +23,7 @@ class Client:
 
         async for message in self.ws:
             message = message.json()
+            print(message)
             content = json.loads(message["content"])
 
             switch = {
@@ -108,7 +109,7 @@ class Client:
         if create_session:
             self.request.new_session(b64)
             self.request.session.cookie_jar.update_cookies(
-                [["auth", cookie.split(';')[0].split("=")[1]]]
+                [["auth", cookie[5:]]]
             )
 
         if "requiresTwoFactorAuth" in resp["data"]:
@@ -183,7 +184,7 @@ class Client:
         try:
             self.loop.run_until_complete(self._run(username, password, b64, mfa))
         except KeyboardInterrupt:
-            self.loop.run_until_complete(client.logout())
+            self.loop.run_until_complete(self.logout())
 
     async def _run(self, username=None, password=None, b64=None, mfa=None):
         await self.login2fa(username, password, b64, mfa)
@@ -200,7 +201,7 @@ class Client:
         authToken = ""
         for cookie in self.request.session.cookie_jar:
             if cookie.key == "auth":
-                authToken = cookie.value
+                authToken = cookie.value.split(";")[0]
 
         self.ws = await self.request.session.ws_connect("wss://pipeline.vrchat.cloud/?authToken="+authToken)
         await self._ws_loop()
