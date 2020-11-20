@@ -64,6 +64,19 @@ class Client:
         user = await self.request.call("/users/" + id)
         return User(self, user, loop=self.loop)
 
+    async def upgrade_friends(self):
+        '''
+        Forces all client.friends LimitedUser objects
+        to become User objects
+        '''
+
+        friends = []
+
+        for friend in self.friends:
+            friends.append(await friend.fetch_full())
+
+        self.friends = friends
+
     # Main
 
     async def fetch_me(self, **kwargs):
