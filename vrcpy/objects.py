@@ -127,3 +127,48 @@ class LimitedUser(BaseObject):
         if obj is not None:
             self._assign(obj)
 
+class User(LimitedUser):
+    def __init__(self, client, obj=None, loop=None):
+        super().__init__(client, loop=loop)
+
+        self.required.update({
+            "bio_links": {
+                "dict_key": "bioLinks",
+                "type": list
+            },
+            "status_description": {
+                "dict_key": "statusDescription",
+                "type": str
+            },
+            "last_login": {
+                "dict_key": "last_login",
+                "type": str
+            },
+            "allow_avatar_copying": {
+                "dict_key": "allowAvatarCopying",
+                "type": bool
+            }
+        })
+
+        self.optional.update({
+            "state": {
+                "dict_key": "state",
+                "type": str
+            },
+            "friend_key": {
+                "dict_key": "friendKey",
+                "type": str
+            },
+            "world_id": {
+                "dict_key": "worldId",
+                "type": str
+            },
+            "instance_id": {
+                "dict_key": "instanceId",
+                "type": str
+            }
+        })
+
+        if obj is not None:
+            self._assign(obj)
+
