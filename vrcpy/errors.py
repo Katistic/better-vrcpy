@@ -20,3 +20,7 @@ class ClientErrors:
         # Raised when Client.login is called without either username+password
         #   and base64
         pass
+class ObjectErrors:
+    class IntegretyError(Exception):
+        # Raised when BaseObject._object_integrety fails
+        pass
