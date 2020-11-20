@@ -110,16 +110,16 @@ class LimitedUser(BaseObject):
             "is_friend": {
                 "dict_key": "isFriend",
                 "type": bool
-            },
-            "location": {
-                "dict_key": "location",
-                "type": str
             }
         })
 
         self.optional.update({
             "status": {
                 "dict_key": "status",
+                "type": str
+            },
+            "location": {
+                "dict_key": "location",
                 "type": str
             }
         })
