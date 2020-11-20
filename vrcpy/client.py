@@ -73,3 +73,20 @@ class Client:
         self.ws = await self.request.session.ws_connect("wss://pipeline.vrchat.cloud/?authToken="+authToken)
         await self._ws_loop()
 
+    async def event(self, func):
+        '''
+        Decorator that overwrites class ws event hooks
+
+        Example
+        --------
+
+        @client.event
+        def on_connect():
+            print("Connected to wss pipeline.")
+
+        '''
+
+        if func.__name__.startswith("on_") and hasattr(self, func.__name__):
+            setattr(self, func.__name__, func)
+            return func
+
