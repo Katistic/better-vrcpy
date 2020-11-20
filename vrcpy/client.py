@@ -98,7 +98,7 @@ class Client:
         resp = await self.request.call(
             "/auth/user",
             headers={"Authorization": "Basic " + b64},
-            no_auth=True
+            no_auth=create_session
         )
 
         cookie = None
