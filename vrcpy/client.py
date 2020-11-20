@@ -111,6 +111,18 @@ class Client:
 
         self.me = CurrentUser(self, resp["data"], self.loop)
 
+    async def verify2fa(self, code):
+        '''
+        Used to verify authtoken on 2fa enabled accounts
+
+            code, string
+            2FactorAuth code (totp or otp)
+        '''
+
+        await self.request.call("/auth/twofactorauth/{}/verify".format(
+                "totp" if len(code) == 6 else "otp"
+            ), "POST", jdict={"code": code})
+
     async def logout(self):
         '''
         Closes client session and logs out VRC user
