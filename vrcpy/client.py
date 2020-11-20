@@ -27,6 +27,7 @@ class Client:
             asyncio.set_event_loop(loop)
 
     async def _ws_loop(self):
+        self.friends = await self.me.fetch_friends()
         self.loop.create_task(self.on_connect())
 
         async for message in self.ws:
@@ -150,7 +151,7 @@ class Client:
             await self.login(username, password, b64)
         except ClientErrors.MfaRequired:
             await self.verify2fa(mfa)
-            self.me = await self.login(username, password, b64, False)
+            await self.login(username, password, b64, False)
 
     async def verify2fa(self, code):
         '''
