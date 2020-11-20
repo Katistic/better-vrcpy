@@ -7,6 +7,7 @@ import json
 class Client:
     def __init__(self, loop=None):
         self.request = Request()
+
         self.me = None
         self.friends = []
 
@@ -31,7 +32,7 @@ class Client:
                 "friend-add": self._on_friend_add,
                 "friend-delete": self._on_friend_delete,
                 "friend-update": self._on_friend_update,
-                "notification": self._ws_notification
+                "notification": self._on_notification
             }
 
             if message["type"] in switch:
@@ -55,7 +56,15 @@ class Client:
     # Main
 
     async def fetch_me(self, **kwargs):
-        return await self.request.call("/auth/user", **kwargs)
+        me = await self.request.call("/auth/user", **kwargs)
+        me = CurrentUser(
+            self,
+            me,
+            loop=self.loop
+        )
+
+        self.me = me
+        return me
 
     async def login(self, username=None, password=None, b64=None):
         '''
@@ -80,20 +89,29 @@ class Client:
 
             b64 = base64.b64encode((username+":"+password).encode()).decode()
 
-        resp = await self.fetch_me(
+        resp = await self.request.call(
+            "/auth/user",
             headers={"Authorization": "Basic " + b64},
             no_auth=True
         )
 
+        cookie = None
+        for cookie in resp["response"].headers.getall("Set-Cookie"):
+            if "auth=authcookie" in cookie:
+                break
+
         self.request.new_session(b64)
         self.request.session.cookie_jar.update_cookies(
-            [["auth", resp["response"].headers["Set-Cookie"].split(';')[0].split("=")[1]]]
+            [["auth", cookie.split(';')[0].split("=")[1]]]
         )
 
     async def logout(self):
         '''
         Closes client session and logs out VRC user
         '''
+
+        self.me = None
+        self.friends = None
 
         await self.request.call("/logout", "PUT")
         await self.request.close_session()
@@ -106,6 +124,11 @@ class Client:
     # Websocket Stuff
 
     async def start(self):
+        '''
+        Starts the ws event _ws_loop
+        This function is blocking
+        '''
+
         authToken = ""
         for cookie in self.request.session.cookie_jar:
             if cookie.key == "auth":
