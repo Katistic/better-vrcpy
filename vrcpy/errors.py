@@ -13,6 +13,10 @@ class RequestErrors:
         # Raised when all request retry attempts fail
         pass
 
+    class RateLimit(Exception):
+        # Raised when received a 429 http response
+        pass
+
 class ClientErrors:
     # Errors for vrcpy/client.py
 
