@@ -121,6 +121,21 @@ class Client:
 
         await asyncio.sleep(0)
 
+    def run(self, username=None, password=None, b64=None):
+        '''
+        Automates login+start
+        This function is blocking
+        '''
+
+        try:
+            asyncio.get_event_loop().run_until_complete(self._run(username, password, b64))
+        except KeyboardInterrupt:
+            asyncio.get_event_loop().run_until_complete(client.logout())
+
+    async def _run(self, username=None, password=None, b64=None):
+        await self.login(username, password, b64)
+        await self.start()
+
     # Websocket Stuff
 
     async def start(self):
