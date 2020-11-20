@@ -25,6 +25,14 @@ class ClientErrors:
         #   and base64
         pass
 
+    class MfaRequired(Exception):
+        # Raised when needing mfa code to login
+        pass
+
+    class MfaInvalid(Exception):
+        # Raised when mfa code is invalid
+        pass
+
 class ObjectErrors:
     # Errors for vrcpy/objects.py
 
