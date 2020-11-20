@@ -111,6 +111,33 @@ class Client:
 
         self.me = CurrentUser(self, resp["data"], self.loop)
 
+    async def login2fa(self, username=None, password=None, b64=None, mfa=None):
+        '''
+        Used to login as a VRC user
+
+        Must include one of the combinations:
+            Username/Password login
+                username, string
+                Username/email of VRC account
+
+                password, string
+                Password of VRC account
+
+            b64 login
+                b64, string
+                Base64 encoded username:password
+
+        Optional:
+            mfa, string
+            TOTP or OTP code to verify authtoken
+        '''
+
+        try:
+            await self.login(username, password, b64)
+        except ClientErrors.MfaError:
+            await self.verify2fa(mfa)
+            self.me = await self.login(username, password, b64)
+
     async def verify2fa(self, code):
         '''
         Used to verify authtoken on 2fa enabled accounts
