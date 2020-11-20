@@ -66,3 +66,64 @@ class BaseObject:
                     )
                 )
 
+class LimitedUser(BaseObject):
+    def __init__(self, client, obj=None, loop=None):
+        super().__init__(client, loop=loop)
+
+        self.required.update({
+            "username": {
+                "dict_key": "username",
+                "type": str
+            },
+            "display_name": {
+                "dict_key": "displayName",
+                "type": str
+            },
+            "id": {
+                "dict_key": "id",
+                "type": str
+            },
+            "bio": {
+                "dict_key": "bio",
+                "type": str
+            },
+            "avatar_image_url": {
+                "dict_key": "currentAvatarImageUrl",
+                "type": str
+            },
+            "avatar_thumbnail_url": {
+                "dict_key": "currentAvatarThumbnailImageUrl",
+                "type": str
+            },
+            "last_platform": {
+                "dict_key": "last_platform",
+                "type": str
+            },
+            "tags": {
+                "dict_key": "tags",
+                "type": list
+            },
+            "developer_type": {
+                "dict_key": "developerType",
+                "type": str
+            },
+            "is_friend": {
+                "dict_key": "isFriend",
+                "type": bool
+            },
+            "location": {
+                "dict_key": "location",
+                "type": str
+            }
+        })
+
+        self.optional.update({
+            "status": {
+                "dict_key": "status",
+                "type": str
+            }
+        })
+
+        if obj is not None:
+            self._assign(obj)
+
