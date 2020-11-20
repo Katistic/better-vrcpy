@@ -118,7 +118,8 @@ class Request:
             resp["data"] = json.loads(resp["data"].decode())
 
         def handle_400():
-            pass
+            if "verified" in resp["data"]:
+                raise ClientErrors.MfaInvalid("2FA code is invalid!")
 
         def handle_401():
             pass
