@@ -288,3 +288,34 @@ class CurrentUser(User):
         })
 
         self._assign(obj)
+
+    def fetch_friends(self):
+        '''
+        Returns list of LimitedUser objects
+        '''
+
+        friends = []
+        print(self.online_friends)
+
+        for offset in range(0,
+            len(self.online_friends) + len(self.offline_friends),
+            100):
+
+            resp = self.request.call("/auth/user/friends", params={
+                "offset": offset,
+                "n": 100,
+                "offline": False})
+
+            for user in resp["data"]:
+                friends.append(User(self.client, user, self.loop))
+
+        for offset in range(0, len(self.offline_friends), 100):
+            resp = self.request.call("/auth/user/friends", params={
+                "offset": offset,
+                "n": 100,
+                "offline": True})
+
+            for user in resp["data"]:
+                friends.append(User(self.client, user, self.loop))
+
+        return friends
