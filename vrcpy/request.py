@@ -128,7 +128,7 @@ class Request:
             pass
 
         def handle_429():
-            pass
+            raise RequestErrors.RateLimit(resp["data"]["error"]["message"])
 
         switch = {
             400: lambda: handle_400(),
