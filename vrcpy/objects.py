@@ -129,6 +129,9 @@ class LimitedUser(BaseObject):
         if obj is not None:
             self._assign(obj)
 
+    async def fetch_full(self):
+        return await self.client.fetch_user_via_id(self.id)
+
 class User(LimitedUser):
     def __init__(self, client, obj=None, loop=None):
         super().__init__(client, loop=loop)
