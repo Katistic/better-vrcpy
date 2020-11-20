@@ -52,6 +52,7 @@ class BaseObject:
                 setattr(self, key, None)
 
         if hasattr(self, "__cinit__"):
+            self.cachingFinished = False
             self.cacheTask = self.loop.create_task(self.__cinit__())
 
         # Save yo memory fool

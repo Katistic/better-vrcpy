@@ -10,6 +10,14 @@ class Client:
         self.request = Request(verify=verify)
 
         self.me = None
+
+        '''
+        This is a list of LimitedUser objects
+        It slowly gets made a list of User objects via ws events
+        You can force all User objects from the start using
+            await client.upgrade_friends()
+        In "on_connect" event or after
+        '''
         self.friends = []
 
         self.ws = None
@@ -184,6 +192,8 @@ class Client:
         try:
             self.loop.run_until_complete(self._run(username, password, b64, mfa))
         except KeyboardInterrupt:
+            pass
+        finally:
             self.loop.run_until_complete(self.logout())
 
     async def _run(self, username=None, password=None, b64=None, mfa=None):
