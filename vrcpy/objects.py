@@ -21,21 +21,24 @@ class BaseObject:
                     self.loop
                 )
             else:
-                if t is not dict:
+                if t is not dict and t is not list:
                     return t(obj)
 
+        return obj
 
     def _assign(self, obj):
         self._object_integrety(obj)
 
         for key in self.required:
+            myobj = self._get_proper_obj(
+                obj[self.required[key]["dict_key"]],
+                self.required[key]["type"]
+            )
+
             setattr(
                 self,
                 key,
-                self._get_proper_obj(
-                    obj[self.required[key]["dict_key"]],
-                    self.required[key]["type"]
-                )
+                myobj
             )
 
         for key in self.optional:
@@ -62,6 +65,7 @@ class BaseObject:
     def _object_integrety(self, obj):
         for key in self.required:
             if self.required[key]["dict_key"] not in obj:
+                print(obj.keys())
                 raise ObjectErrors.IntegretyError(
                     "{} object missing required key {}".format(
                         self.__class__.__name__, self.required[key]["dict_key"]
@@ -83,10 +87,6 @@ class LimitedUser(BaseObject):
             },
             "id": {
                 "dict_key": "id",
-                "type": str
-            },
-            "bio": {
-                "dict_key": "bio",
                 "type": str
             },
             "avatar_image_url": {
@@ -120,6 +120,10 @@ class LimitedUser(BaseObject):
                 "dict_key": "status",
                 "type": str
             },
+            "bio": {
+                "dict_key": "bio",
+                "type": str
+            },
             "location": {
                 "dict_key": "location",
                 "type": str
@@ -137,10 +141,6 @@ class User(LimitedUser):
         super().__init__(client, loop=loop)
 
         self.required.update({
-            "bio_links": {
-                "dict_key": "bioLinks",
-                "type": list
-            },
             "status_description": {
                 "dict_key": "statusDescription",
                 "type": str
@@ -148,14 +148,14 @@ class User(LimitedUser):
             "last_login": {
                 "dict_key": "last_login",
                 "type": str
-            },
-            "allow_avatar_copying": {
-                "dict_key": "allowAvatarCopying",
-                "type": bool
             }
         })
 
         self.optional.update({
+            "bio_links": {
+                "dict_key": "bioLinks",
+                "type": list
+            },
             "state": {
                 "dict_key": "state",
                 "type": str
@@ -171,6 +171,10 @@ class User(LimitedUser):
             "instance_id": {
                 "dict_key": "instanceId",
                 "type": str
+            },
+            "allow_avatar_copying": {
+                "dict_key": "allowAvatarCopying",
+                "type": bool
             }
         })
 
@@ -289,19 +293,18 @@ class CurrentUser(User):
 
         self._assign(obj)
 
-    def fetch_friends(self):
+    async def fetch_friends(self):
         '''
         Returns list of LimitedUser objects
         '''
 
         friends = []
-        print(self.online_friends)
 
         for offset in range(0,
             len(self.online_friends) + len(self.offline_friends),
             100):
 
-            resp = self.request.call("/auth/user/friends", params={
+            resp = await self.client.request.call("/auth/user/friends", params={
                 "offset": offset,
                 "n": 100,
                 "offline": False})
@@ -310,7 +313,7 @@ class CurrentUser(User):
                 friends.append(User(self.client, user, self.loop))
 
         for offset in range(0, len(self.offline_friends), 100):
-            resp = self.request.call("/auth/user/friends", params={
+            resp = await self.client.request.call("/auth/user/friends", params={
                 "offset": offset,
                 "n": 100,
                 "offline": True})

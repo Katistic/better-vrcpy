@@ -37,6 +37,10 @@ class ClientErrors:
         # Raised when mfa code is invalid
         pass
 
+    class InvalidEventFunction(Exception):
+        # Raised when trying to @client.event a func without a valid event name
+        pass
+
 class ObjectErrors:
     # Errors for vrcpy/objects.py
 

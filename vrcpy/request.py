@@ -77,7 +77,6 @@ class Request:
                 params[param] = str(params[param]).lower()
 
         params["apiKey"] = self.apiKey
-        path += "?apiKey=" + self.apiKey
         if no_auth:
             session = aiohttp.ClientSession(headers={"user-agent": self.user_agent})
             resp = await session.request(method, self.base + path, params=params,
@@ -137,5 +136,6 @@ class Request:
             429: lambda: handle_429()
         }
 
-        switch[resp["response"].status]()
+        if resp["response"].status in switch:
+            switch[resp["response"].status]()
         print(resp)

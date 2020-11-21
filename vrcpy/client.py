@@ -32,7 +32,6 @@ class Client:
 
         async for message in self.ws:
             message = message.json()
-            print(message)
             content = json.loads(message["content"])
 
             switch = {
@@ -62,7 +61,7 @@ class Client:
 
     async def fetch_user_via_id(self, id):
         user = await self.request.call("/users/" + id)
-        return User(self, user, loop=self.loop)
+        return User(self, user["data"], loop=self.loop)
 
     async def upgrade_friends(self):
         '''
@@ -83,7 +82,7 @@ class Client:
         me = await self.request.call("/auth/user", **kwargs)
         me = CurrentUser(
             self,
-            me,
+            me["data"],
             loop=self.loop
         )
 
@@ -181,15 +180,19 @@ class Client:
                 "totp" if len(code) == 6 else "otp"
             ), "POST", jdict={"code": code})
 
-    async def logout(self):
+    async def logout(self, unauth=True):
         '''
         Closes client session and logs out VRC user
+
+            unauth, bool
+            If should unauth the session cookie
         '''
 
         self.me = None
         self.friends = None
 
-        await self.request.call("/logout", "PUT")
+        if unauth:
+            await self.request.call("/logout", "PUT")
         await self.request.close_session()
 
         if self.ws is not None:
@@ -247,6 +250,8 @@ class Client:
             setattr(self, func.__name__, func)
             return func
 
+        raise ClientErrors.InvalidEventFunction("{} is not a valid event".format(func.__name__))
+
     async def on_connect(self):
         # Called at the start of ws event loop
         pass
@@ -257,8 +262,10 @@ class Client:
 
     async def _on_friend_online(self, obj):
         user = User(self, obj["user"], self.loop)
+        friend = self.get_friend(user.id)
 
-        self.friends.remove(self.get_friend(user.id))
+        if friend is not None:
+            self.friends.remove(friend)
         self.friends.append(user)
 
         await self.on_friend_online(user)
@@ -269,8 +276,10 @@ class Client:
 
     async def _on_friend_offline(self, obj):
         user = await self.fetch_user_via_id(obj["userId"])
+        friend = self.get_friend(user.id)
 
-        self.friends.remove(self.get_friend(user.id))
+        if friend is not None:
+            self.friends.remove(friend)
         self.friends.append(user)
 
         await self.on_friend_offline(user)
@@ -281,8 +290,10 @@ class Client:
 
     async def _on_friend_active(self, obj):
         user = User(self, obj["user"], self.loop)
+        friend = self.get_friend(user.id)
 
-        self.friends.remove(self.get_friend(user.id))
+        if friend is not None:
+            self.friends.remove(friend)
         self.friends.append(user)
 
         await self.on_friend_active(user)
@@ -293,8 +304,10 @@ class Client:
 
     async def _on_friend_add(self, obj):
         user = User(self, obj["user"], self.loop)
+        friend = self.get_friend(user.id)
 
-        self.friends.remove(self.get_friend(user.id))
+        if friend is not None:
+            self.friends.remove(friend)
         self.friends.append(user)
 
         await self.on_friend_add(user)
@@ -305,8 +318,10 @@ class Client:
 
     async def _on_friend_delete(self, obj):
         user = await self.fetch_user_via_id(obj["userId"])
+        friend = self.get_friend(user.id)
 
-        self.friends.remove(self.get_friend(user.id))
+        if friend is not None:
+            self.friends.remove(friend)
 
         await self.on_friend_delete(user)
 
@@ -318,7 +333,8 @@ class Client:
         user = User(self, obj["user"], self.loop)
         ouser = self.get_friend(user.id)
 
-        self.friends.remove(ouser)
+        if ouser is not None:
+            self.friends.remove(ouser)
         self.friends.append(user)
 
         await self.on_friend_update(ouser, user)
@@ -339,7 +355,8 @@ class Client:
         user = User(self, obj["user"], self.loop)
         ouser = self.get_friend(user.id)
 
-        self.friends.remove(ouser)
+        if ouser is not None:
+            self.friends.remove(ouser)
         self.friends.append(user)
 
         await self.on_friend_location(ouser, user)
