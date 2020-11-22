@@ -1,6 +1,8 @@
 from vrcpy.request import Request
-from vrcpy.objects import *
 from vrcpy.errors import ClientErrors
+
+from vrcpy.user import *
+
 import asyncio
 import base64
 import json
