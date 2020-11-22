@@ -134,6 +134,10 @@ class LimitedUser(BaseObject):
             self._assign(obj)
 
     async def fetch_full(self):
+        '''
+        Returns this user as a User object
+        '''
+
         return await self.client.fetch_user_via_id(self.id)
 
 class User(LimitedUser):

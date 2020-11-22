@@ -53,6 +53,14 @@ class Client:
     # Utility
 
     def get_friend(self, id):
+        '''
+        Gets a cached friend
+        May be LimitedUser or User
+
+            id, str
+            ID of the user to get
+        '''
+
         for user in self.friends:
             if user.id == id:
                 return user
@@ -60,6 +68,14 @@ class Client:
         return None
 
     async def fetch_user_via_id(self, id):
+        '''
+        Gets a non-cached friend
+        Returns a User object
+
+            id, str
+            ID of the user to get
+        '''
+
         user = await self.request.call("/users/" + id)
         return User(self, user["data"], loop=self.loop)
 
@@ -79,6 +95,11 @@ class Client:
     # Main
 
     async def fetch_me(self, **kwargs):
+        '''
+        Gets new CurrentUser object
+        kwargs are extra options to pass to request.call
+        '''
+
         me = await self.request.call("/auth/user", **kwargs)
         me = CurrentUser(
             self,
