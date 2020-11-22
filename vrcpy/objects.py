@@ -140,6 +140,16 @@ class LimitedUser(BaseObject):
 
         return await self.client.fetch_user_via_id(self.id)
 
+    async def send_friend_request(self):
+        '''
+        Sends a friend request notification to this user
+        '''
+
+        if self.is_friend:
+            raise ObjectErrors.AlreadyFriends("You are already friends with " + self.display_name)
+
+        await self.client.request.call("/user/%s/friendRequest" % self.id, "POST")
+
 class User(LimitedUser):
     def __init__(self, client, obj=None, loop=None):
         super().__init__(client, loop=loop)

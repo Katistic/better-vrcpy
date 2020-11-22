@@ -47,3 +47,7 @@ class ObjectErrors:
     class IntegretyError(Exception):
         # Raised when BaseObject._object_integrety fails
         pass
+
+    class AlreadyFriends(Exception):
+        # Raised when user and current user are already friends
+        pass
