@@ -27,6 +27,7 @@ class BaseObject:
 
     def _assign(self, obj):
         self._object_integrety(obj)
+        self.raw = obj
 
         for key in self.required:
             myobj = self._get_proper_obj(
