@@ -10,17 +10,8 @@ class BaseObject:
         self.optional = {}
 
     def _get_proper_obj(self, obj, t):
-        vrcpy_types = [LimitedUser, User, CurrentUser]
-
         if type(obj) is not t:
-            if t in vrcpy_types:
-                return t(
-                    obj,
-                    self.client,
-                    self.loop
-                )
-            else:
-                if t is not dict and t is not list:
+            if t is not dict and t is not list:
                     return t(obj)
 
         return obj
