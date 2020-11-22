@@ -48,6 +48,10 @@ class ObjectErrors:
         # Raised when BaseObject._object_integrety fails
         pass
 
+    class NotFriends(Exception):
+        # Raised when user and current user aren't friends
+        pass
+
     class AlreadyFriends(Exception):
         # Raised when user and current user are already friends
         pass

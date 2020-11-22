@@ -150,6 +150,16 @@ class LimitedUser(BaseObject):
 
         await self.client.request.call("/user/%s/friendRequest" % self.id, "POST")
 
+    async def unfriend(self):
+        '''
+        Unfriends this user
+        '''
+
+        if not self.is_friend:
+            raise ObjectErrors.NotFriends("You are not friends with " + self.display_name)
+
+        await self.client.request.call("/auth/user/friends/" + self.id, "DELETE")
+
 class User(LimitedUser):
     def __init__(self, client, obj=None, loop=None):
         super().__init__(client, loop=loop)
