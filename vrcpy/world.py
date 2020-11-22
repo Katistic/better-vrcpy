@@ -206,3 +206,12 @@ class Instance(BaseObject):
         })
 
         self._assign(obj)
+
+    async def get_world(self):
+        '''
+        Gets the world this instance is in
+        Returns World object
+        '''
+
+        world = await self.client.request.call("/worlds/"+self.world_id)
+        return World(self.client, world["data"], self.loop)
