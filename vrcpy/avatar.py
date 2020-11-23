@@ -1,5 +1,7 @@
 from vrcpy.baseobject import BaseObject
 
+import logging
+
 class Avatar(BaseObject):
     def __init__(self, client, obj, loop=None):
         super().__init__(client, loop=loop)
@@ -81,6 +83,8 @@ class Avatar(BaseObject):
         Favorite this avatar
         Returns an AvatarFavorite object
         '''
+
+        logging.info("Favoriting avatar with id " + self.id)
 
         resp = await self.client.request.call(
             "/favorites",

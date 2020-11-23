@@ -1,5 +1,7 @@
 from vrcpy.baseobject import BaseObject
 
+import logging
+
 class LimitedWorld(BaseObject):
     def __init__(self, client, obj=None, loop=None):
         super().__init__(client, loop)
@@ -92,6 +94,8 @@ class LimitedWorld(BaseObject):
         Returns a WorldFavorite object
         '''
 
+        logging.info("Favoriting world with id " + self.id)
+
         resp = await self.client.request.call(
             "/favorites",
             "POST",
@@ -143,6 +147,8 @@ class World(LimitedWorld):
     async def __cinit__(self):
         instances = []
         for instance in self.instances:
+            logging.debug("Caching instance %s for world %s" % (instance[0], self.name))
+
             instance = await self.client.fetch_instance_via_id(self.id, instance[0])
             instances.append(instance)
 
@@ -232,6 +238,8 @@ class Instance(BaseObject):
         Gets the world this instance is in
         Returns World object
         '''
+
+        logging.info("Getting instance world of id " + self.world_id)
 
         world = await self.client.request.call("/worlds/"+self.world_id)
         return World(self.client, world["data"], self.loop)

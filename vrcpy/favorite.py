@@ -1,5 +1,7 @@
 from vrcpy.baseobject import BaseObject
 
+import logging
+
 class BaseFavorite(BaseObject):
     def __init__(self, client, obj, loop=None):
         super().__init__(client, loop)
@@ -24,6 +26,8 @@ class BaseFavorite(BaseObject):
             "friend": FriendFavorite,
             "avatar": AvatarFavorite
         }
+
+        logging.info("Building favorite of type " + obj["type"])
 
         return switch[obj["type"]](client, obj, loop)
 

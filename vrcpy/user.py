@@ -1,6 +1,8 @@
 from vrcpy.errors import ObjectErrors
 from vrcpy.baseobject import BaseObject
 
+import logging
+
 class LimitedUser(BaseObject):
     def __init__(self, client, obj=None, loop=None):
         super().__init__(client, loop=loop)
@@ -67,12 +69,16 @@ class LimitedUser(BaseObject):
         Returns this user as a User object
         '''
 
+        logging.info("Getting User object of user " + self.username)
+
         return await self.client.fetch_user_via_id(self.id)
 
     async def send_friend_request(self):
         '''
         Sends a friend request notification to this user
         '''
+
+        logging.info("Sending friend request to " + self.username)
 
         if self.is_friend:
             raise ObjectErrors.AlreadyFriends("You are already friends with " + self.display_name)
@@ -84,6 +90,8 @@ class LimitedUser(BaseObject):
         Unfriends this user
         '''
 
+        logging.info("Unfriending user " + self.username)
+
         if not self.is_friend:
             raise ObjectErrors.NotFriends("You are not friends with " + self.display_name)
 
@@ -94,6 +102,8 @@ class LimitedUser(BaseObject):
         Favorite this user
         Returns a FriendFavorite object
         '''
+
+        logging.info("Favoriting user with id " + self.id)
 
         if not self.is_friend:
             raise ObjectErrors.NotFriends("You are not friends with " + self.display_name)
@@ -270,6 +280,8 @@ class CurrentUser(User):
         '''
         Returns list of LimitedUser objects
         '''
+
+        logging.info("Fetching friends")
 
         friends = []
 

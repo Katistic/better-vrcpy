@@ -6,6 +6,7 @@ from vrcpy.world import *
 from vrcpy.notification import *
 from vrcpy.favorite import BaseFavorite
 
+import logging
 import asyncio
 import base64
 import json
@@ -51,6 +52,8 @@ class Client:
             message = message.json()
             content = json.loads(message["content"])
 
+            logging.debug("Got ws message (%s)" % message["type"] )
+
             switch = {
                 "friend-location": self._on_friend_location,
                 "friend-online": self._on_friend_online,
@@ -78,6 +81,8 @@ class Client:
             ID of the user to get
         '''
 
+        logging.info("Getting cached friend with id " + id)
+
         for user in self.friends:
             if user.id == id:
                 return user
@@ -93,6 +98,8 @@ class Client:
             ID of the user to get
         '''
 
+        logging.info("Getting user via id " + id)
+
         user = await self.request.call("/users/" + id)
         return User(self, user["data"], loop=self.loop)
 
@@ -107,6 +114,8 @@ class Client:
             ID of the specific instance
         '''
 
+        logging.info("Getting instance %s:%s" % (world_id, instance_id))
+
         instance = await self.request.call("/worlds/%s/%s" % (world_id, instance_id))
         return Instance(self, instance["data"], self.loop)
 
@@ -119,9 +128,11 @@ class Client:
         friends = []
 
         for friend in self.friends:
+            logging.debug("Upgrading " + friend.display_name)
             friends.append(await friend.fetch_full())
 
         self.friends = friends
+        logging.info("Finished upgrading friends")
 
     # Main
 
@@ -130,6 +141,8 @@ class Client:
         Gets new CurrentUser object
         kwargs are extra options to pass to request.call
         '''
+
+        logging.info("Fetching me")
 
         me = await self.request.call("/auth/user", **kwargs)
         me = CurrentUser(
@@ -161,6 +174,8 @@ class Client:
             create_session, bool
             Create a new session or not, defaults to True
         '''
+
+        logging.info("Doing logon (%screating new session)" % ("" if not create_session else "not "))
 
         if b64 is None:
             if username is None or password is None:
@@ -211,6 +226,8 @@ class Client:
             TOTP or OTP code to verify authtoken
         '''
 
+        logging.info("Doing 2falogon")
+
         try:
             await self.login(username, password, b64)
         except ClientErrors.MfaRequired:
@@ -224,6 +241,8 @@ class Client:
             code, string
             2FactorAuth code (totp or otp)
         '''
+
+        logging.info("Verifying 2fa authtoken")
 
         if type(code) is not str:
             raise ClientErrors.MfaInvalid("{} is not a valid 2fa code".format(code))
@@ -239,6 +258,8 @@ class Client:
             unauth, bool
             If should unauth the session cookie
         '''
+
+        logging.info("Doing logout (%sdeauthing authtoken)" % ("" if unauth else "not "))
 
         self.me = None
         self.friends = None
@@ -277,6 +298,8 @@ class Client:
         This function is blocking
         '''
 
+        logging.info("Starting ws loop")
+
         authToken = ""
         for cookie in self.request.session.cookie_jar:
             if cookie.key == "auth":
@@ -299,6 +322,7 @@ class Client:
         '''
 
         if func.__name__.startswith("on_") and hasattr(self, func.__name__):
+            logging.debug("Replacing %s via decorator" % func.__name__)
             setattr(self, func.__name__, func)
             return func
 

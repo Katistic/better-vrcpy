@@ -1,6 +1,7 @@
 import json
 import asyncio
 import aiohttp
+import logging
 
 from vrcpy.errors import *
 
@@ -57,6 +58,8 @@ class Request:
         verify = verify or self.verify
 
         if self.apiKey is None:
+            logging.warning("VRC API Key has not been fetched, fetching")
+
             j = None
 
             async with aiohttp.ClientSession(headers={"user-agent": self.user_agent}) as session:
@@ -88,6 +91,8 @@ class Request:
             session = None
             resp = await self.session.request(method, self.base + path, params=params,
                 headers=headers, json=jdict, ssl=self.verify)
+
+        logging.debug("%s request at %s -> %s" % (method, path, resp.status))
 
         if resp.status != 200:
             content = await resp.content.read()

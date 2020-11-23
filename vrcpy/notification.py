@@ -1,5 +1,7 @@
 from vrcpy.baseobject import BaseObject
 
+import logging
+
 class Notification:
     class Type:
         # Sendable

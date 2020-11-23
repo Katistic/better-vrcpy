@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from vrcpy.errors import ObjectErrors
 
 class BaseObject:
