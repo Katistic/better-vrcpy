@@ -34,6 +34,7 @@ class Client:
             await client.upgrade_friends()
         In "on_connect" event or after
         '''
+
         self.friends = []
 
         self.ws = None
@@ -96,6 +97,16 @@ class Client:
         return User(self, user["data"], loop=self.loop)
 
     async def fetch_instance_via_id(self, world_id, instance_id):
+        '''
+        Gets instance object
+
+            world_id, str
+            ID of the world of the instance
+
+            instance_id, str
+            ID of the specific instance
+        '''
+
         instance = await self.request.call("/worlds/%s/%s" % (world_id, instance_id))
         return Instance(self, instance["data"], self.loop)
 
