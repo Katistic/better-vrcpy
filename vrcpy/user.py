@@ -89,6 +89,26 @@ class LimitedUser(BaseObject):
 
         await self.client.request.call("/auth/user/friends/" + self.id, "DELETE")
 
+    async def favorite(self):
+        '''
+        Favorite this user
+        Returns a FriendFavorite object
+        '''
+
+        if not self.is_friend:
+            raise ObjectErrors.NotFriends("You are not friends with " + self.display_name)
+
+        resp = await self.client.request.call(
+            "/favorites",
+            "POST",
+            params={
+                "type": "friend",
+                "favoriteId": self.id
+            }
+        )
+
+        return self.client._BaseFavorite.build_favorite(self.client, resp["data"], self.loop)
+
 class User(LimitedUser):
     def __init__(self, client, obj=None, loop=None):
         super().__init__(client, loop=loop)
