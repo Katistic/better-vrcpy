@@ -6,6 +6,7 @@ from vrcpy.world import *
 from vrcpy.notification import *
 from vrcpy.favorite import BaseFavorite
 from vrcpy.permission import BasePermission
+from vrcpy.file import FileBase
 
 import logging
 import asyncio
@@ -138,6 +139,27 @@ class Client:
         else:
             perms = await self.request.call("/auth/permissions")
             return [BasePermission.build_permission(self, perm, self.loop) for perm in perms]
+
+    async def get_files(self, tag=None, n=100):
+        '''
+        Gets user icons
+        Returns list of IconFile objects
+
+            tag, str
+            Tag to filter files
+
+            n, int
+            Number of files to return (max might be 100?)
+        '''
+
+        logging.info("Getting icons")
+
+        params = {"n": n}
+        if tag is not None:
+            params.update({"tag": tag})
+
+        files = await self.request.call("/files", params=params)
+        return [FileBase.build_file(self, file, self.loop) for file in files]
 
     async def upgrade_friends(self):
         '''
