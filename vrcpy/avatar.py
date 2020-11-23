@@ -91,7 +91,8 @@ class Avatar(BaseObject):
             "POST",
             params={
                 "type": "avatar",
-                "favoriteId": self.id
+                "favoriteId": self.id,
+                "tags": ["avatars1"] # Will probably need changing when vrc+ comes out
             }
         )
 
