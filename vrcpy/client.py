@@ -4,6 +4,7 @@ from vrcpy.errors import ClientErrors
 from vrcpy.user import *
 from vrcpy.world import *
 from vrcpy.notification import *
+from vrcpy.favorite import BaseFavorite
 
 import asyncio
 import base64
@@ -19,6 +20,7 @@ class Client:
     _InviteNotification = InviteNotification
     _RequestInviteNotification = RequestInviteNotification
     _FriendRequestNotification = FriendRequestNotification
+    _BaseFavorite = BaseFavorite
 
     def __init__(self, loop=None, verify=True):
         self.request = Request(verify=verify)
