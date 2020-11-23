@@ -2,12 +2,24 @@ from vrcpy.request import Request
 from vrcpy.errors import ClientErrors
 
 from vrcpy.user import *
+from vrcpy.world import *
+from vrcpy.notification import *
 
 import asyncio
 import base64
 import json
 
 class Client:
+    # Refs to avoid circular imports
+    _LimitedUser = LimitedUser
+    _User = User
+    _CurrentUser = CurrentUser
+    _LimitedWorld = LimitedWorld
+    _World = World
+    _InviteNotification = InviteNotification
+    _RequestInviteNotification = RequestInviteNotification
+    _FriendRequestNotification = FriendRequestNotification
+
     def __init__(self, loop=None, verify=True):
         self.request = Request(verify=verify)
 
