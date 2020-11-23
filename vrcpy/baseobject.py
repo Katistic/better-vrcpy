@@ -1,4 +1,5 @@
 import asyncio
+from vrcpy.errors import ObjectErrors
 
 class BaseObject:
     def __init__(self, client, loop=None):
@@ -46,8 +47,8 @@ class BaseObject:
                 setattr(self, key, None)
 
         if hasattr(self, "__cinit__"):
-            self.cachingFinished = False
-            self.cacheTask = self.loop.create_task(self.__cinit__())
+            self.caching_finished = False
+            self.cache_task = self.loop.create_task(self.__cinit__())
 
         # Save yo memory fool
         del self.required

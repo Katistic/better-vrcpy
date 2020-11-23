@@ -37,8 +37,8 @@ class LimitedWorld(BaseObject):
                 "dict_key": "releaseStatus",
                 "type": str
             },
-            "visis": {
-                "dict_key": "visis",
+            "visits": {
+                "dict_key": "visits",
                 "type": int
             },
             "capacity": {
