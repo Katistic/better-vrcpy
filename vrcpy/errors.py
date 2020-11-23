@@ -55,3 +55,7 @@ class ObjectErrors:
     class AlreadyFriends(Exception):
         # Raised when user and current user are already friends
         pass
+
+    class InvalidGroupName(Exception):
+        # Raised when group name is invalid
+        pass

@@ -94,6 +94,8 @@ class LimitedWorld(BaseObject):
         Returns a WorldFavorite object
         '''
 
+        # TODO: Finish this function
+
         logging.info("Favoriting world with id " + self.id)
 
         resp = await self.client.request.call(

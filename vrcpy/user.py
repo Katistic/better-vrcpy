@@ -97,10 +97,13 @@ class LimitedUser(BaseObject):
 
         await self.client.request.call("/auth/user/friends/" + self.id, "DELETE")
 
-    async def favorite(self):
+    async def favorite(self, group):
         '''
         Favorite this user
         Returns a FriendFavorite object
+
+            group, str
+            Name of group to add friend to
         '''
 
         logging.info("Favoriting user with id " + self.id)
@@ -108,12 +111,21 @@ class LimitedUser(BaseObject):
         if not self.is_friend:
             raise ObjectErrors.NotFriends("You are not friends with " + self.display_name)
 
+        if not group in self.client.me.friend_group_names:
+            raise ObjectErrors.InvalidGroupName(
+                "Group name must be one of %s, not %s" % (
+                    self.client.me.friend_group_names,
+                    group
+                )
+            )
+
         resp = await self.client.request.call(
             "/favorites",
             "POST",
             params={
                 "type": "friend",
-                "favoriteId": self.id
+                "favoriteId": self.id,
+                "tags": [group]
             }
         )
 
