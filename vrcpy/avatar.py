@@ -75,3 +75,20 @@ class Avatar(BaseObject):
         })
 
         self._assign(obj)
+
+    async def favorite(self):
+        '''
+        Favorite this avatar
+        Returns an AvatarFavorite object
+        '''
+
+        resp = await self.client.request.call(
+            "/favorites",
+            "POST",
+            params={
+                "type": "avatar",
+                "favoriteId": self.id
+            }
+        )
+
+        return self.client._BaseFavorite.build_favorite(self.client, resp["data"], self.loop)
