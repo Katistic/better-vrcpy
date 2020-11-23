@@ -63,3 +63,12 @@ class BaseObject:
                         self.__class__.__name__, self.required[key]["dict_key"]
                     )
                 )
+
+    async def wait_for_cache(self):
+        '''
+        Waits for any caching an object has to do
+        '''
+
+        if hasattr(self, "cache_task"):
+            while not self.caching_finished:
+                await asyncio.sleep(0.1)
