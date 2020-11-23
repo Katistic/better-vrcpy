@@ -93,6 +93,10 @@ class Client:
         user = await self.request.call("/users/" + id)
         return User(self, user["data"], loop=self.loop)
 
+    async def fetch_instance_via_id(self, world_id, instance_id):
+        instance = await self.request.call("/worlds/%s/%s" % (world_id, instance_id))
+        return Instance(self, instance["data"], self.loop)
+
     async def upgrade_friends(self):
         '''
         Forces all client.friends LimitedUser objects
