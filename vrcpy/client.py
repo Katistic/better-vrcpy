@@ -120,16 +120,24 @@ class Client:
         instance = await self.request.call("/worlds/%s/%s" % (world_id, instance_id))
         return Instance(self, instance["data"], self.loop)
 
-    async def fetch_permissions(self):
+    async def fetch_permissions(self, condensed=False):
         '''
         Gets users permissions
         Returns list of different Permission objects
+
+            condensed, bool
+            Whether to return condensed perms or not
+            If this is true then return will be a dict of single key-value pairs
         '''
 
-        logging.info("Getting permissions")
+        logging.info("Getting permissions (%scondensed)" % ("" if condensed else "not "))
 
-        perms = await self.request.call("/auth/permissions")
-        return [BasePermission.build_permission(self, perm, self.loop) for perm in perms]
+        if condensed:
+            perms = await self.request.call("/auth/permissions", params={"condensed": True})
+            return perms["data"]
+        else:
+            perms = await self.request.call("/auth/permissions")
+            return [BasePermission.build_permission(self, perm, self.loop) for perm in perms]
 
     async def upgrade_friends(self):
         '''
