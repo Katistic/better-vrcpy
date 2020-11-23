@@ -19,6 +19,8 @@ class BaseObject:
         return obj
 
     def _assign(self, obj):
+        logging.debug("Created %s object" % self.__class__.__name__)
+
         self._object_integrety(obj)
         self.raw = obj
 
