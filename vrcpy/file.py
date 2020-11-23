@@ -25,12 +25,15 @@ class FileBase(BaseObject):
                 "dict_key": "ownerId",
                 "type": str
             },
-            "tags": {
-                "dict_key": "tags",
-                "type": list
-            },
             "versions": {
                 "dict_key": "versions",
+                "type": list
+            }
+        })
+
+        self.optional.update({
+            "tags": {
+                "dict_key": "tags",
                 "type": list
             }
         })
@@ -38,14 +41,15 @@ class FileBase(BaseObject):
         self._assign(obj)
 
     @staticmethod
-    def build_file(self, client, obj, loop=None):
+    def build_file(client, obj, loop=None):
         switch = {
             "icon": IconFile
         }
 
-        for key in switch:
-            if key in obj["tags"]:
-                return switch[key](client, obj, loop)
+        if "tags" in obj and type(obj["tags"]) == list:
+            for key in switch:
+                if key in obj["tags"]:
+                    return switch[key](client, obj, loop)
 
         return FileBase(client, obj, loop)
 
