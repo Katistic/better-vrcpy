@@ -5,6 +5,7 @@ from vrcpy.user import *
 from vrcpy.world import *
 from vrcpy.notification import *
 from vrcpy.favorite import BaseFavorite
+from vrcpy.permission import BasePermission
 
 import logging
 import asyncio
@@ -118,6 +119,17 @@ class Client:
 
         instance = await self.request.call("/worlds/%s/%s" % (world_id, instance_id))
         return Instance(self, instance["data"], self.loop)
+
+    async def fetch_permissions(self):
+        '''
+        Gets users permissions
+        Returns list of different Permission objects
+        '''
+
+        logging.info("Getting permissions")
+
+        perms = await self.request.call("/auth/permissions")
+        return [BasePermission.build_permission(self, perm, self.loop) for perm in perms]
 
     async def upgrade_friends(self):
         '''
