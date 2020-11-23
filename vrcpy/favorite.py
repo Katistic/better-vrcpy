@@ -1,7 +1,7 @@
 from vrcpy.baseobject import BaseObject
 
 class BaseFavorite(BaseObject):
-    def __init__(self, client, ,obj, loop=None):
+    def __init__(self, client, obj, loop=None):
         super().__init__(client, loop)
 
         self.required.update({
