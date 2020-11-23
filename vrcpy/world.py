@@ -86,6 +86,23 @@ class LimitedWorld(BaseObject):
         if obj is not None:
             self._assign(obj)
 
+    async def favorite(self):
+        '''
+        Favorite this world
+        Returns a WorldFavorite object
+        '''
+
+        resp = await self.client.request.call(
+            "/favorites",
+            "POST",
+            params={
+                "type": "world",
+                "favoriteId": self.id
+            }
+        )
+
+        return self.client._BaseFavorite.build_favorite(self.client, resp["data"], self.loop)
+
 class World(LimitedWorld):
     def __init__(self, client, obj, loop=None):
         super().__init__(client, loop)
