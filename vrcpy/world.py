@@ -123,11 +123,14 @@ class World(LimitedWorld):
 
         self._assign(obj)
 
+    async def __cinit__(self):
         instances = []
         for instance in self.instances:
-            instances.append(Instance(self.client, instance, self.loop))
+            instance = await self.client.fetch_instance_via_id(self.id, instance[0])
+            instances.append(instance)
 
         self.instances = instances
+        self.caching_finished = True
 
 # TODO: Finish Instance class
 class Instance(BaseObject):
